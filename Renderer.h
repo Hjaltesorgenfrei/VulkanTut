@@ -180,9 +180,9 @@ public:
 	void createCommandBuffers();
 
 	void createSyncObjects();
-	void updateUniformBuffer(uint32_t currentImage);
+	void updateUniformBuffer(uint32_t currentImage, double mousexPos, double mouseyPos);
 
-	void drawFrame();
+	void drawFrame(double mousexPos, double mouseyPos);
 
 	void cleanup();
 

@@ -32,3 +32,7 @@ GLFWwindow* Window::getGLFWwindow() const {
 bool Window::windowShouldClose() const {
 	return glfwWindowShouldClose(window);
 }
+
+void Window::getCursorPos(double* xpos, double* ypos) const {
+	glfwGetCursorPos(window, xpos, ypos);
+}

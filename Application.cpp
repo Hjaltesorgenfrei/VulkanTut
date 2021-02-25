@@ -24,8 +24,10 @@ void App::run() {
 
 void App::mainLoop() {
 	while (!window->windowShouldClose()) {
+		double xpos, ypos;
 		glfwPollEvents();
-		renderer->drawFrame();
+		window->getCursorPos(&xpos, &ypos);
+		renderer->drawFrame(xpos, ypos);
 	}
 }
 

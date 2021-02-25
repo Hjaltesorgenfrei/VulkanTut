@@ -20,4 +20,5 @@ public:
 
 
 	[[nodiscard]] bool windowShouldClose() const;
+	void getCursorPos(double* xpos, double* ypos) const;
 };

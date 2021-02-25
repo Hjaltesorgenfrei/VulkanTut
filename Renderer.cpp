@@ -900,7 +900,7 @@ void Renderer::createBuffer(vk::DeviceSize size, vk::BufferUsageFlags usage, vk:
 		.size = size,
 		.usage = usage,
 		.sharingMode = vk::SharingMode::eConcurrent,
-		.queueFamilyIndexCount = allowedQueueIndices.size(),
+		.queueFamilyIndexCount = static_cast<uint32_t>(allowedQueueIndices.size()),
 		.pQueueFamilyIndices = allowedQueueIndices.data()
 	};
 
@@ -1179,14 +1179,20 @@ void Renderer::createSyncObjects() {
 	}
 }
 
-void Renderer::updateUniformBuffer(uint32_t currentImage) {
+void Renderer::updateUniformBuffer(uint32_t currentImage, double mousexPos, double mouseyPos) {
 	static auto startTime = std::chrono::high_resolution_clock::now();
 
 	const auto currentTime = std::chrono::high_resolution_clock::now();
 	auto time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
+	float x = 0.0f;
+	if (mousexPos > 0.0f) x = -(mousexPos / swapChainExtent.width);
+	float y = 0.0f;
+	if (mouseyPos > 0.0f) y = -(mouseyPos / swapChainExtent.height);
+	
+	///std::cout << x << std::endl;
 	UniformBufferObject ubo {
-		.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
+		.model = glm::rotate(glm::mat4(1.0f), x * glm::radians(180.0f), glm::vec3(0.0f, 0.0f, 1.0f)) * glm::rotate(glm::mat4(1.0f), y * glm::radians(45.0f), glm::vec3(0.0f, 1.0f, 0.0f)),
 		.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f)),
 		.proj = glm::perspective(glm::radians(45.0f), swapChainExtent.width / static_cast<float>(swapChainExtent.height), 0.1f, 10.0f)
 	};
@@ -1200,7 +1206,7 @@ void Renderer::updateUniformBuffer(uint32_t currentImage) {
 	device->unmapMemory(uniformBuffersMemory[currentImage]);
 }
 
-void Renderer::drawFrame() {
+void Renderer::drawFrame(double mousexPos, double mouseyPos) {
 
 	while (device->waitForFences(inFlightFences[currentFrame], VK_TRUE, std::numeric_limits<uint64_t>::max())
 		== vk::Result::eTimeout) {
@@ -1252,7 +1258,7 @@ void Renderer::drawFrame() {
 	vk::PipelineStageFlags waitStages[] = { vk::PipelineStageFlagBits::eColorAttachmentOutput };
 	vk::Semaphore signalSemaphores[] = { renderFinishedSemaphores[currentFrame] };
 
-	updateUniformBuffer(imageIndex);
+	updateUniformBuffer(imageIndex, mousexPos, mouseyPos);
 	
 	vk::SubmitInfo submitInfo {
 
